@@ -441,7 +441,6 @@
 
 <header class="top">
   <h1 class="stamp">Undercover</h1>
-  <div class="sub">Dossier confidentiel · Ne pas partager l'écran</div>
 </header>
 
 <main>
@@ -763,7 +762,7 @@
     $('reveal-progress').textContent = `Joueur ${state.revealIndex+1} / ${state.players.length}`;
     $('reveal-name').textContent = p.name;
     if(p.role === 'white'){
-      $('reveal-roletag').textContent = 'Tu es MR WHITE';
+      $('reveal-roletag').textContent = 'Tu es Mr White';
       $('reveal-word').textContent = 'Aucun mot — bluffe !';
       $('reveal-word').classList.add('white');
     } else {
