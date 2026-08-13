@@ -629,7 +629,8 @@
     revealIndex: 0,
     pendingElim: null,
     turnPointer: 0,
-    civilWord: ''
+    civilWord: '',
+    recentPairs: []
   };
 
   const $ = (id) => document.getElementById(id);
@@ -717,11 +718,17 @@
   };
 
   function startGame(names){
-    // pick word pair
+    // pick word pair, avoiding ones used in the last few games (when the pool allows it)
     const pool = [];
     state.categories.forEach(cat=> WORDS[cat].forEach(pair=> pool.push(pair)));
-    const [civilWord, ucWord] = pool[Math.floor(Math.random()*pool.length)];
+    const isRecent = (pair)=> state.recentPairs.some(r=> r[0]===pair[0] && r[1]===pair[1]);
+    let choices = pool.filter(pair=> !isRecent(pair));
+    if(choices.length === 0) choices = pool; // whole bank was recently used, allow repeats again
+    const [civilWord, ucWord] = choices[Math.floor(Math.random()*choices.length)];
     state.civilWord = civilWord;
+    state.recentPairs.push([civilWord, ucWord]);
+    const historyLimit = Math.max(1, Math.min(8, pool.length - 1));
+    if(state.recentPairs.length > historyLimit) state.recentPairs.shift();
 
     // build role list
     let roles = [];
@@ -868,6 +875,9 @@
     $('white-guess-result').textContent = '';
     $('white-guess-submit').style.display = 'block';
     $('elim-modal').style.display = 'flex';
+    // Always reset the Continue button to the neutral "no win" behavior.
+    // Only the guess-submit handler (below) is allowed to temporarily override it.
+    $('modal-continue').onclick = ()=> closeElimAndCheck(false);
     if(p.role==='white') setTimeout(()=> $('white-guess-input').focus(), 300);
   }
 
