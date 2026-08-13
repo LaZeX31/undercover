@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>DOSSIER — Undercover</title>
+<meta name="theme-color" content="#12161f">
+<meta name="description" content="Jeu de société Undercover : distribution des mots, tour de parole et votes.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12161f;
+    --panel:#1b2130;
+    --panel-2:#232a3c;
+    --line:#333d54;
+    --parchment:#ede3cf;
+    --parchment-2:#e2d5b8;
+    --gold:#c9a24b;
+    --gold-dim:#8a7038;
+    --crimson:#8b3a3a;
+    --crimson-bright:#c0524f;
+    --teal:#3f6e64;
+    --ivory:#f1ecdf;
+    --muted:#8f97ab;
+    --shadow: 0 20px 50px rgba(0,0,0,0.45);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #1a2133 0%, var(--ink) 55%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+    color:var(--ivory);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:0 0 40px;
+    overflow-x:hidden;
+  }
+  .stamp{
+    font-family:'Special Elite', monospace;
+    letter-spacing:2px;
+  }
+  header.top{
+    width:100%;
+    max-width:520px;
+    padding:28px 20px 16px;
+    text-align:center;
+    position:relative;
+  }
+  header.top::after{
+    content:"";
+    display:block;
+    width:60px;height:2px;
+    background:var(--gold-dim);
+    margin:14px auto 0;
+  }
+  header.top h1{
+    font-family:'Special Elite', monospace;
+    font-size:1.9rem;
+    letter-spacing:3px;
+    margin:0;
+    color:var(--ivory);
+    text-transform:uppercase;
+  }
+  header.top .sub{
+    color:var(--gold);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    margin-top:6px;
+  }
+  main{
+    width:100%;
+    max-width:520px;
+    padding:0 18px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+  }
+  .screen{ display:none; flex-direction:column; gap:16px; animation:fadein .35s ease; }
+  .screen.active{ display:flex; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px;
+    box-shadow: var(--shadow);
+    position:relative;
+  }
+  .panel::before{
+    content:attr(data-tab);
+    position:absolute;
+    top:-11px; left:16px;
+    background:var(--gold-dim);
+    color:#161b26;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    font-weight:600;
+    letter-spacing:2px;
+    padding:3px 10px;
+    border-radius:3px;
+    text-transform:uppercase;
+  }
+  label.field-label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .stepper{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .stepper button{
+    width:42px; height:42px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    color:var(--ivory);
+    font-size:1.3rem;
+    cursor:pointer;
+  }
+  .stepper .val{
+    font-family:'Special Elite', monospace;
+    font-size:1.6rem;
+    min-width:34px;
+    text-align:center;
+  }
+  .player-list{ display:flex; flex-direction:column; gap:8px; margin-top:4px;}
+  .player-row{ display:flex; align-items:center; gap:8px; }
+  .player-row .num{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--gold);
+    font-size:0.75rem;
+    width:22px;
+    text-align:right;
+  }
+  .player-row input{
+    flex:1;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    color:var(--ivory);
+    padding:10px 12px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.95rem;
+  }
+  .player-row input:focus{ outline:1px solid var(--gold); }
+
+  .toggle-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 0;
+    border-top:1px dashed var(--line);
+  }
+  .toggle-row:first-child{ border-top:none; }
+  .switch{
+    width:46px; height:26px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:20px;
+    position:relative;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .switch .knob{
+    position:absolute; top:2px; left:2px;
+    width:20px; height:20px;
+    border-radius:50%;
+    background:var(--muted);
+    transition:.2s;
+  }
+  .switch.on{ background:rgba(201,162,75,0.25); border-color:var(--gold-dim); }
+  .switch.on .knob{ left:22px; background:var(--gold); }
+
+  .btn{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    font-size:0.8rem;
+    font-weight:600;
+    padding:15px 18px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    text-align:center;
+  }
+  .btn-primary{ background:linear-gradient(180deg,#d6b25e,var(--gold)); color:#20180a; }
+  .btn-primary:active{ transform:translateY(1px); }
+  .btn-ghost{ background:transparent; color:var(--ivory); border:1px solid var(--line); }
+  .btn-danger{ background:var(--crimson); color:#fff0ee; }
+  .btn-teal{ background:var(--teal); color:#eafff6; }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .hint{ color:var(--muted); font-size:0.78rem; line-height:1.5; }
+  .error{ color:var(--crimson-bright); font-size:0.8rem; font-family:'IBM Plex Mono',monospace; }
+
+  .category-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .cat-chip{
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    color:var(--muted);
+    border-radius:7px;
+    padding:10px 8px;
+    text-align:center;
+    font-size:0.82rem;
+    cursor:pointer;
+  }
+  .cat-chip.on{ border-color:var(--gold); color:var(--gold); background:rgba(201,162,75,0.08); }
+
+  /* Reveal phase */
+  .progress{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--muted);
+    font-size:0.75rem;
+    letter-spacing:2px;
+    text-align:center;
+    text-transform:uppercase;
+  }
+  .card-stage{
+    perspective:1200px;
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px 0;
+  }
+  .card{
+    width:100%;
+    max-width:340px;
+    height:440px;
+    position:relative;
+    transform-style:preserve-3d;
+    transition:transform .55s cubic-bezier(.3,.9,.3,1);
+    cursor:pointer;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .face{
+    position:absolute; inset:0;
+    border-radius:14px;
+    backface-visibility:hidden;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:26px;
+    text-align:center;
+  }
+  .face-front{
+    background:
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 14px),
+      linear-gradient(160deg, var(--panel-2), var(--panel));
+    border:1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+  .face-front .seal{
+    width:92px; height:92px;
+    border-radius:50%;
+    border:2px solid var(--gold-dim);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--gold);
+    font-family:'Special Elite', monospace;
+    font-size:0.65rem;
+    letter-spacing:2px;
+    text-align:center;
+    margin-bottom:22px;
+  }
+  .face-front .name{
+    font-family:'Special Elite', monospace;
+    font-size:1.5rem;
+    color:var(--ivory);
+    margin-bottom:8px;
+  }
+  .face-front .tap{
+    margin-top:20px;
+    color:var(--muted);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  .face-back{
+    background:linear-gradient(170deg, var(--parchment), var(--parchment-2));
+    color:#241c0f;
+    transform:rotateY(180deg);
+    border:1px solid #b9a875;
+  }
+  .face-back .role-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:#7a6a3d;
+    margin-bottom:14px;
+  }
+  .face-back .word{
+    font-family:'Special Elite', monospace;
+    font-size:2.1rem;
+    line-height:1.25;
+  }
+  .face-back .word.blanc{ font-size:1.5rem; color:var(--crimson); }
+  .face-back .stampmark{
+    position:absolute;
+    bottom:18px; right:18px;
+    border:2px solid var(--crimson);
+    color:var(--crimson);
+    padding:3px 9px;
+    font-family:'Special Elite', monospace;
+    font-size:0.7rem;
+    transform:rotate(-8deg);
+    opacity:0.85;
+    letter-spacing:1px;
+  }
+
+  .reveal-actions{ display:flex; gap:10px; }
+
+  /* Turn tracker */
+  .turn-display{
+    background:linear-gradient(170deg, var(--parchment), var(--parchment-2));
+    border-radius:10px;
+    padding:18px;
+    text-align:center;
+    border:1px solid #b9a875;
+  }
+  .turn-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:#7a6a3d;
+    margin-bottom:6px;
+  }
+  .turn-name{
+    font-family:'Special Elite', monospace;
+    font-size:1.7rem;
+    color:#241c0f;
+  }
+
+  /* Game phase */
+  .live-grid{ display:flex; flex-direction:column; gap:8px; }
+  .live-row{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px 14px;
+    cursor:pointer;
+  }
+  .live-row.out{
+    opacity:0.5;
+    cursor:default;
+  }
+  .live-row .lname{ font-family:'IBM Plex Sans'; font-weight:600; }
+  .live-row .lrole{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .tally{
+    display:flex; gap:14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:1px;
+    justify-content:center;
+  }
+  .tally b{ color:var(--ivory); }
+
+  .endcard{
+    text-align:center;
+    padding:30px 18px;
+  }
+  .endcard .big{
+    font-family:'Special Elite', monospace;
+    font-size:1.7rem;
+    margin-bottom:10px;
+  }
+  .endcard.civil .big{ color:var(--teal); }
+  .endcard.undercover .big{ color:var(--crimson-bright); }
+  .endcard.blanc .big{ color:var(--gold); }
+
+  .modal-back{
+    position:fixed; inset:0; background:rgba(10,12,18,0.75);
+    display:flex; align-items:center; justify-content:center;
+    z-index:50; padding:24px;
+  }
+  .modal-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:22px; max-width:360px; width:100%; text-align:center;
+    box-shadow:var(--shadow);
+  }
+  .modal-card .rolebig{ font-family:'Special Elite', monospace; font-size:1.3rem; margin:10px 0 4px; }
+  .modal-card .wordbig{ font-family:'IBM Plex Mono', monospace; font-size:1rem; color:var(--gold); margin-bottom:16px; }
+
+  footer.credit{
+    color:var(--muted);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:1.5px;
+    text-align:center;
+    margin-top:20px;
+    text-transform:uppercase;
+    opacity:0.6;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1 class="stamp">Undercover</h1>
+  <div class="sub">Dossier confidentiel · Ne pas partager l'écran</div>
+</header>
+
+<main>
+
+  <!-- SCREEN 1 : SETUP -->
+  <section class="screen active" id="screen-setup">
+    <div class="panel" data-tab="Effectif">
+      <label class="field-label">Nombre de joueurs</label>
+      <div class="stepper">
+        <button type="button" id="dec-players">−</button>
+        <div class="val" id="players-count">5</div>
+        <button type="button" id="inc-players">+</button>
+        <span class="hint" style="margin-left:auto;">3 à 15 joueurs</span>
+      </div>
+    </div>
+
+    <div class="panel" data-tab="Identités">
+      <label class="field-label">Noms des joueurs</label>
+      <div class="player-list" id="player-inputs"></div>
+    </div>
+
+    <div class="panel" data-tab="Rôles">
+      <div class="toggle-row">
+        <div>
+          <div style="font-weight:600;">Undercover</div>
+          <div class="hint">Reçoivent un mot proche mais différent</div>
+        </div>
+        <div class="stepper">
+          <button type="button" id="dec-uc">−</button>
+          <div class="val" id="uc-count" style="font-size:1.1rem;">1</div>
+          <button type="button" id="inc-uc">+</button>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div style="font-weight:600;">Mr Blanc</div>
+          <div class="hint">Ne reçoit aucun mot, doit bluffer</div>
+        </div>
+        <div class="switch" id="toggle-blanc"><div class="knob"></div></div>
+      </div>
+      <div class="error" id="setup-error" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="panel" data-tab="Thème">
+      <label class="field-label">Catégories de mots</label>
+      <div class="category-grid" id="category-grid"></div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-start">Distribuer les cartes</button>
+  </section>
+
+  <!-- SCREEN 2 : REVEAL -->
+  <section class="screen" id="screen-reveal">
+    <div class="progress" id="reveal-progress">Joueur 1 / 5</div>
+    <div class="card-stage">
+      <div class="card" id="reveal-card">
+        <div class="face face-front">
+          <div class="seal">PASSE<br>LE<br>TÉLÉPHONE</div>
+          <div class="name" id="reveal-name">—</div>
+          <div class="tap">Touche la carte pour révéler</div>
+        </div>
+        <div class="face face-back">
+          <div class="role-tag" id="reveal-roletag">Ton mot</div>
+          <div class="word" id="reveal-word">—</div>
+          <div class="stampmark">SECRET</div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal-actions">
+      <button class="btn btn-ghost" id="btn-hide" style="display:none;flex:1;">Cacher &amp; joueur suivant</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 3 : GAME / ELIMINATION -->
+  <section class="screen" id="screen-game">
+    <div class="panel" data-tab="Tour de parole">
+      <div class="hint" style="margin-bottom:10px;">Chacun décrit son mot à tour de rôle, sans jamais le dire.</div>
+      <div class="turn-display">
+        <div class="turn-label">C'est à</div>
+        <div class="turn-name" id="turn-name">—</div>
+      </div>
+      <button class="btn btn-primary" id="btn-next-turn" style="width:100%; margin-top:12px;">Joueur suivant →</button>
+    </div>
+    <div class="panel" data-tab="En jeu">
+      <div class="hint" style="margin-bottom:10px;">Une fois le tour de table terminé, votez à voix haute puis touchez le nom du joueur éliminé pour révéler son rôle.</div>
+      <div class="tally" id="tally"></div>
+    </div>
+    <div class="live-grid" id="live-grid"></div>
+    <button class="btn btn-ghost" id="btn-restart">Nouvelle partie</button>
+  </section>
+
+  <!-- SCREEN 4 : END -->
+  <section class="screen" id="screen-end">
+    <div class="panel endcard" id="endcard">
+      <div class="big" id="end-title">—</div>
+      <div class="hint" id="end-sub"></div>
+    </div>
+    <div class="panel" data-tab="Récapitulatif">
+      <div id="end-recap" class="hint"></div>
+    </div>
+    <button class="btn btn-primary" id="btn-again">Rejouer avec les mêmes joueurs</button>
+    <button class="btn btn-ghost" id="btn-newgame">Nouvelle configuration</button>
+  </section>
+
+</main>
+
+<footer class="credit">Dossier généré aléatoirement · Aucune donnée conservée</footer>
+
+<div class="modal-back" id="elim-modal" style="display:none;">
+  <div class="modal-card">
+    <div class="role-tag" style="font-family:'IBM Plex Mono',monospace;font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);">Éliminé</div>
+    <div class="rolebig" id="modal-name">—</div>
+    <div class="hint" id="modal-role">—</div>
+    <div class="wordbig" id="modal-word"></div>
+    <div id="modal-blanc-guess" style="display:none; margin-bottom:14px;">
+      <div class="hint" style="margin-bottom:8px;">Mr Blanc peut tenter de deviner le mot des civils pour gagner immédiatement. A-t-il deviné juste ?</div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-teal" id="blanc-correct" style="flex:1;">Oui, juste</button>
+        <button class="btn btn-danger" id="blanc-wrong" style="flex:1;">Non</button>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="modal-continue" style="width:100%;">Continuer</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---------- WORD BANK ----------
+  const WORDS = {
+    "Nourriture": [
+      ["Pizza","Quiche"],["Frites","Chips"],["Chocolat","Caramel"],["Fromage","Yaourt"],
+      ["Pomme","Poire"],["Banane","Mangue"],["Croissant","Pain au chocolat"],["Sushi","Sashimi"],
+      ["Burger","Hot-dog"],["Pâtes","Riz"],["Salade","Soupe"],["Gâteau","Tarte"],
+      ["Glace","Sorbet"],["Miel","Confiture"],["Crêpe","Gaufre"]
+    ],
+    "Animaux": [
+      ["Chat","Tigre"],["Chien","Loup"],["Cheval","Âne"],["Lion","Panthère"],
+      ["Éléphant","Rhinocéros"],["Dauphin","Requin"],["Aigle","Faucon"],["Serpent","Lézard"],
+      ["Abeille","Guêpe"],["Tortue","Crabe"],["Ours","Panda"],["Singe","Gorille"],
+      ["Poule","Coq"],["Mouton","Chèvre"],["Papillon","Libellule"]
+    ],
+    "Métiers": [
+      ["Médecin","Infirmier"],["Professeur","Instituteur"],["Pompier","Policier"],["Boulanger","Pâtissier"],
+      ["Avocat","Juge"],["Chanteur","Musicien"],["Acteur","Réalisateur"],["Pilote","Steward"],
+      ["Coiffeur","Esthéticienne"],["Plombier","Électricien"],["Journaliste","Écrivain"],["Architecte","Ingénieur"],
+      ["Fermier","Jardinier"],["Chef cuisinier","Serveur"],["Photographe","Peintre"]
+    ],
+    "Lieux": [
+      ["Plage","Piscine"],["Montagne","Colline"],["Forêt","Jungle"],["Désert","Savane"],
+      ["Ville","Village"],["École","Université"],["Hôpital","Clinique"],["Aéroport","Gare"],
+      ["Musée","Bibliothèque"],["Restaurant","Café"],["Cinéma","Théâtre"],["Église","Château"],
+      ["Marché","Supermarché"],["Parc","Jardin"],["Île","Péninsule"]
+    ],
+    "Objets": [
+      ["Téléphone","Tablette"],["Ordinateur","Console"],["Voiture","Moto"],["Vélo","Trottinette"],
+      ["Montre","Réveil"],["Lunettes","Jumelles"],["Parapluie","Casquette"],["Sac","Valise"],
+      ["Stylo","Crayon"],["Livre","Journal"],["Guitare","Violon"],["Ballon","Frisbee"],
+      ["Couteau","Ciseaux"],["Table","Bureau"],["Lit","Canapé"]
+    ],
+    "Boissons": [
+      ["Café","Thé"],["Jus d'orange","Smoothie"],["Vin","Champagne"],["Bière","Cidre"],
+      ["Eau","Limonade"],["Cocktail","Mocktail"],["Lait","Yaourt à boire"],["Chocolat chaud","Café au lait"]
+    ],
+    "Transports": [
+      ["Train","Tramway"],["Avion","Hélicoptère"],["Bateau","Voilier"],["Bus","Métro"],
+      ["Voiture","Camion"],["Taxi","VTC"],["Fusée","Satellite"]
+    ],
+    "Nature": [
+      ["Soleil","Lune"],["Pluie","Neige"],["Océan","Lac"],["Rivière","Ruisseau"],
+      ["Volcan","Montagne"],["Forêt","Prairie"],["Nuage","Brouillard"],["Tempête","Orage"]
+    ],
+    "Sport": [
+      ["Football","Rugby"],["Basketball","Handball"],["Tennis","Badminton"],["Natation","Plongée"],
+      ["Ski","Snowboard"],["Boxe","Judo"],["Cyclisme","Course à pied"],["Golf","Bowling"]
+    ]
+  };
+
+  // ---------- STATE ----------
+  let state = {
+    playerCount: 5,
+    names: ["Joueur 1","Joueur 2","Joueur 3","Joueur 4","Joueur 5"],
+    ucCount: 1,
+    blanc: false,
+    categories: Object.keys(WORDS),
+    players: [], // {name, role:'civil'|'undercover'|'blanc', word, alive}
+    revealIndex: 0,
+    pendingElim: null,
+    turnPointer: 0
+  };
+
+  const $ = (id) => document.getElementById(id);
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    $(id).classList.add('active');
+  }
+
+  // ---------- SETUP SCREEN ----------
+  function renderPlayerInputs(){
+    const wrap = $('player-inputs');
+    wrap.innerHTML = '';
+    for(let i=0;i<state.playerCount;i++){
+      const row = document.createElement('div');
+      row.className = 'player-row';
+      row.innerHTML = `<span class="num">${i+1}</span><input type="text" maxlength="18" data-idx="${i}" value="${state.names[i] || 'Joueur '+(i+1)}">`;
+      wrap.appendChild(row);
+    }
+    wrap.querySelectorAll('input').forEach(inp=>{
+      inp.addEventListener('input', e=>{
+        state.names[+e.target.dataset.idx] = e.target.value;
+      });
+    });
+  }
+
+  function clampUC(){
+    const maxUC = Math.max(1, state.playerCount - 2 - (state.blanc?1:0));
+    if(state.ucCount > maxUC) state.ucCount = maxUC;
+    if(state.ucCount < 1) state.ucCount = 1;
+    $('uc-count').textContent = state.ucCount;
+  }
+
+  $('dec-players').onclick = ()=>{
+    if(state.playerCount>3){ state.playerCount--; $('players-count').textContent = state.playerCount; renderPlayerInputs(); clampUC(); }
+  };
+  $('inc-players').onclick = ()=>{
+    if(state.playerCount<15){ state.playerCount++; $('players-count').textContent = state.playerCount; renderPlayerInputs(); clampUC(); }
+  };
+  $('dec-uc').onclick = ()=>{ if(state.ucCount>1){ state.ucCount--; clampUC(); } };
+  $('inc-uc').onclick = ()=>{ state.ucCount++; clampUC(); };
+
+  $('toggle-blanc').onclick = ()=>{
+    state.blanc = !state.blanc;
+    $('toggle-blanc').classList.toggle('on', state.blanc);
+    clampUC();
+  };
+
+  function renderCategories(){
+    const grid = $('category-grid');
+    grid.innerHTML = '';
+    Object.keys(WORDS).forEach(cat=>{
+      const chip = document.createElement('div');
+      chip.className = 'cat-chip on';
+      chip.textContent = cat;
+      chip.dataset.cat = cat;
+      chip.onclick = ()=>{
+        const idx = state.categories.indexOf(cat);
+        if(idx>-1){
+          if(state.categories.length>1){ state.categories.splice(idx,1); chip.classList.remove('on'); }
+        } else {
+          state.categories.push(cat); chip.classList.add('on');
+        }
+      };
+      grid.appendChild(chip);
+    });
+  }
+
+  renderPlayerInputs();
+  renderCategories();
+  clampUC();
+
+  $('btn-start').onclick = ()=>{
+    $('setup-error').textContent = '';
+    const names = state.names.slice(0, state.playerCount).map(n=>n && n.trim() ? n.trim() : null);
+    if(names.some(n=>!n)){
+      $('setup-error').textContent = 'Merci de donner un nom à chaque joueur.';
+      return;
+    }
+    const civilSlots = state.playerCount - state.ucCount - (state.blanc?1:0);
+    if(civilSlots < 2){
+      $('setup-error').textContent = 'Il faut au moins 2 civils. Réduisez les Undercover / Mr Blanc.';
+      return;
+    }
+    startGame(names);
+  };
+
+  function startGame(names){
+    // pick word pair
+    const pool = [];
+    state.categories.forEach(cat=> WORDS[cat].forEach(pair=> pool.push(pair)));
+    const [civilWord, ucWord] = pool[Math.floor(Math.random()*pool.length)];
+
+    // build role list
+    let roles = [];
+    for(let i=0;i<state.ucCount;i++) roles.push('undercover');
+    if(state.blanc) roles.push('blanc');
+    const civilCount = state.playerCount - roles.length;
+    for(let i=0;i<civilCount;i++) roles.push('civil');
+    // shuffle
+    for(let i=roles.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [roles[i],roles[j]] = [roles[j],roles[i]];
+    }
+
+    state.players = names.map((name,i)=>{
+      const role = roles[i];
+      const word = role==='civil' ? civilWord : role==='undercover' ? ucWord : '';
+      return { name, role, word, alive:true };
+    });
+    state.revealIndex = 0;
+    showScreen('screen-reveal');
+    renderRevealCard();
+  }
+
+  // ---------- REVEAL SCREEN ----------
+  const card = $('reveal-card');
+  let revealed = false;
+
+  function renderRevealCard(){
+    revealed = false;
+    card.classList.remove('flipped');
+    $('btn-hide').style.display = 'none';
+    const p = state.players[state.revealIndex];
+    $('reveal-progress').textContent = `Joueur ${state.revealIndex+1} / ${state.players.length}`;
+    $('reveal-name').textContent = p.name;
+    if(p.role === 'blanc'){
+      $('reveal-roletag').textContent = 'Tu es MR BLANC';
+      $('reveal-word').textContent = 'Aucun mot — bluffe !';
+      $('reveal-word').classList.add('blanc');
+    } else {
+      $('reveal-roletag').textContent = 'Ton mot';
+      $('reveal-word').textContent = p.word;
+      $('reveal-word').classList.remove('blanc');
+    }
+  }
+
+  card.addEventListener('click', ()=>{
+    if(!revealed){
+      revealed = true;
+      card.classList.add('flipped');
+      $('btn-hide').style.display = 'block';
+    }
+  });
+
+  $('btn-hide').onclick = ()=>{
+    state.revealIndex++;
+    if(state.revealIndex >= state.players.length){
+      startLiveGame();
+    } else {
+      renderRevealCard();
+    }
+  };
+
+  // ---------- GAME / ELIMINATION SCREEN ----------
+  function aliveCounts(){
+    const alive = state.players.filter(p=>p.alive);
+    const civils = alive.filter(p=>p.role==='civil').length;
+    const bad = alive.filter(p=>p.role!=='civil').length;
+    return {civils, bad, alive};
+  }
+
+  function startLiveGame(){
+    showScreen('screen-game');
+    state.turnPointer = Math.floor(Math.random()*state.players.length);
+    renderTurn();
+    renderLiveGrid();
+  }
+
+  function nextAliveFrom(idx){
+    const n = state.players.length;
+    for(let step=1; step<=n; step++){
+      const i = (idx + step) % n;
+      if(state.players[i].alive) return i;
+    }
+    return idx;
+  }
+
+  function renderTurn(){
+    if(!state.players[state.turnPointer] || !state.players[state.turnPointer].alive){
+      state.turnPointer = nextAliveFrom(state.turnPointer);
+    }
+    const p = state.players[state.turnPointer];
+    $('turn-name').textContent = p ? p.name : '—';
+  }
+
+  $('btn-next-turn').onclick = ()=>{
+    state.turnPointer = nextAliveFrom(state.turnPointer);
+    renderTurn();
+  };
+
+  function roleLabel(role){
+    return role==='civil' ? 'Civil' : role==='undercover' ? 'Undercover' : 'Mr Blanc';
+  }
+
+  function renderLiveGrid(){
+    const grid = $('live-grid');
+    grid.innerHTML = '';
+    state.players.forEach((p, idx)=>{
+      const row = document.createElement('div');
+      row.className = 'live-row' + (p.alive ? '' : ' out');
+      row.innerHTML = `<span class="lname">${p.alive ? '' : '☠ '}${p.name}</span><span class="lrole">${p.alive ? 'En jeu' : roleLabel(p.role)}</span>`;
+      if(p.alive){
+        row.onclick = ()=> openElimModal(idx);
+      }
+      grid.appendChild(row);
+    });
+    const {civils, bad} = aliveCounts();
+    $('tally').innerHTML = `<span>Civils en jeu : <b>${civils}</b></span><span>Suspects en jeu : <b>${bad}</b></span>`;
+  }
+
+  function openElimModal(idx){
+    state.pendingElim = idx;
+    const p = state.players[idx];
+    $('modal-name').textContent = p.name;
+    $('modal-role').textContent = `Rôle réel : ${roleLabel(p.role)}`;
+    $('modal-word').textContent = p.word ? `Mot : ${p.word}` : '';
+    $('modal-blanc-guess').style.display = p.role==='blanc' ? 'block' : 'none';
+    $('modal-continue').style.display = p.role==='blanc' ? 'none' : 'block';
+    $('elim-modal').style.display = 'flex';
+  }
+
+  function closeElimAndCheck(blancWon){
+    const p = state.players[state.pendingElim];
+    p.alive = false;
+    $('elim-modal').style.display = 'none';
+
+    if(blancWon){
+      endGame('blanc', p);
+      return;
+    }
+    const {civils, bad} = aliveCounts();
+    if(bad === 0){
+      endGame('civil');
+      return;
+    }
+    if(bad >= civils){
+      endGame('undercover');
+      return;
+    }
+    renderTurn();
+    renderLiveGrid();
+  }
+
+  $('modal-continue').onclick = ()=> closeElimAndCheck(false);
+  $('blanc-correct').onclick = ()=> closeElimAndCheck(true);
+  $('blanc-wrong').onclick = ()=> closeElimAndCheck(false);
+
+  // ---------- END SCREEN ----------
+  function endGame(winner, blancPlayer){
+    showScreen('screen-end');
+    const ec = $('endcard');
+    ec.className = 'panel endcard ' + winner;
+    if(winner === 'civil'){
+      $('end-title').textContent = 'LES CIVILS GAGNENT';
+      $('end-sub').textContent = 'Tous les suspects ont été démasqués.';
+    } else if(winner === 'undercover'){
+      $('end-title').textContent = 'LES UNDERCOVER GAGNENT';
+      $('end-sub').textContent = 'Les infiltrés ont pris le dessus.';
+    } else {
+      $('end-title').textContent = 'MR BLANC GAGNE';
+      $('end-sub').textContent = `${blancPlayer.name} a deviné le mot des civils !`;
+    }
+    const recap = state.players.map(p=> `${p.name} — ${roleLabel(p.role)}${p.word ? ' ('+p.word+')' : ''}`).join('<br>');
+    $('end-recap').innerHTML = recap;
+  }
+
+  $('btn-restart').onclick = ()=>{
+    if(confirm('Abandonner la partie en cours ?')) showScreen('screen-setup');
+  };
+  $('btn-newgame').onclick = ()=> showScreen('screen-setup');
+  $('btn-again').onclick = ()=>{
+    const names = state.players.map(p=>p.name);
+    startGame(names);
+  };
+
+})();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
