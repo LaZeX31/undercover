@@ -2,7 +2,7 @@
   "name": "Undercover — Dossier",
   "short_name": "Undercover",
   "description": "Jeu de société Undercover : distribution des mots, tour de parole et votes.",
-  "start_url": "./undercover.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
