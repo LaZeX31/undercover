@@ -316,7 +316,7 @@
     font-size:2.1rem;
     line-height:1.25;
   }
-  .face-back .word.blanc{ font-size:1.5rem; color:var(--crimson); }
+  .face-back .word.white{ font-size:1.5rem; color:var(--crimson); }
   .face-back .stampmark{
     position:absolute;
     bottom:18px; right:18px;
@@ -398,7 +398,7 @@
   }
   .endcard.civil .big{ color:var(--teal); }
   .endcard.undercover .big{ color:var(--crimson-bright); }
-  .endcard.blanc .big{ color:var(--gold); }
+  .endcard.white .big{ color:var(--gold); }
 
   .modal-back{
     position:fixed; inset:0; background:rgba(10,12,18,0.75);
@@ -412,6 +412,18 @@
   }
   .modal-card .rolebig{ font-family:'Special Elite', monospace; font-size:1.3rem; margin:10px 0 4px; }
   .modal-card .wordbig{ font-family:'IBM Plex Mono', monospace; font-size:1rem; color:var(--gold); margin-bottom:16px; }
+  .modal-card input{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    color:var(--ivory);
+    padding:12px 14px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:1rem;
+    text-align:center;
+  }
+  .modal-card input:focus{ outline:1px solid var(--gold); }
 
   footer.credit{
     color:var(--muted);
@@ -465,10 +477,10 @@
       </div>
       <div class="toggle-row">
         <div>
-          <div style="font-weight:600;">Mr Blanc</div>
+          <div style="font-weight:600;">Mr White</div>
           <div class="hint">Ne reçoit aucun mot, doit bluffer</div>
         </div>
-        <div class="switch" id="toggle-blanc"><div class="knob"></div></div>
+        <div class="switch" id="toggle-white"><div class="knob"></div></div>
       </div>
       <div class="error" id="setup-error" style="margin-top:8px;"></div>
     </div>
@@ -544,12 +556,11 @@
     <div class="rolebig" id="modal-name">—</div>
     <div class="hint" id="modal-role">—</div>
     <div class="wordbig" id="modal-word"></div>
-    <div id="modal-blanc-guess" style="display:none; margin-bottom:14px;">
-      <div class="hint" style="margin-bottom:8px;">Mr Blanc peut tenter de deviner le mot des civils pour gagner immédiatement. A-t-il deviné juste ?</div>
-      <div style="display:flex; gap:10px;">
-        <button class="btn btn-teal" id="blanc-correct" style="flex:1;">Oui, juste</button>
-        <button class="btn btn-danger" id="blanc-wrong" style="flex:1;">Non</button>
-      </div>
+    <div id="modal-white-guess" style="display:none; margin-bottom:14px;">
+      <div class="hint" style="margin-bottom:8px;">Mr White doit écrire le mot des civils pour tenter de gagner immédiatement.</div>
+      <input type="text" id="white-guess-input" placeholder="Son mot..." autocomplete="off">
+      <button class="btn btn-primary" id="white-guess-submit" style="width:100%; margin-top:10px;">Valider sa réponse</button>
+      <div class="hint" id="white-guess-result" style="margin-top:8px;"></div>
     </div>
     <button class="btn btn-primary" id="modal-continue" style="width:100%;">Continuer</button>
   </div>
@@ -612,12 +623,13 @@
     playerCount: 5,
     names: ["Joueur 1","Joueur 2","Joueur 3","Joueur 4","Joueur 5"],
     ucCount: 1,
-    blanc: false,
+    white: false,
     categories: Object.keys(WORDS),
-    players: [], // {name, role:'civil'|'undercover'|'blanc', word, alive}
+    players: [], // {name, role:'civil'|'undercover'|'white', word, alive}
     revealIndex: 0,
     pendingElim: null,
-    turnPointer: 0
+    turnPointer: 0,
+    civilWord: ''
   };
 
   const $ = (id) => document.getElementById(id);
@@ -644,7 +656,7 @@
   }
 
   function clampUC(){
-    const maxUC = Math.max(1, state.playerCount - 2 - (state.blanc?1:0));
+    const maxUC = Math.max(1, state.playerCount - 2 - (state.white?1:0));
     if(state.ucCount > maxUC) state.ucCount = maxUC;
     if(state.ucCount < 1) state.ucCount = 1;
     $('uc-count').textContent = state.ucCount;
@@ -659,9 +671,9 @@
   $('dec-uc').onclick = ()=>{ if(state.ucCount>1){ state.ucCount--; clampUC(); } };
   $('inc-uc').onclick = ()=>{ state.ucCount++; clampUC(); };
 
-  $('toggle-blanc').onclick = ()=>{
-    state.blanc = !state.blanc;
-    $('toggle-blanc').classList.toggle('on', state.blanc);
+  $('toggle-white').onclick = ()=>{
+    state.white = !state.white;
+    $('toggle-white').classList.toggle('on', state.white);
     clampUC();
   };
 
@@ -696,9 +708,9 @@
       $('setup-error').textContent = 'Merci de donner un nom à chaque joueur.';
       return;
     }
-    const civilSlots = state.playerCount - state.ucCount - (state.blanc?1:0);
+    const civilSlots = state.playerCount - state.ucCount - (state.white?1:0);
     if(civilSlots < 2){
-      $('setup-error').textContent = 'Il faut au moins 2 civils. Réduisez les Undercover / Mr Blanc.';
+      $('setup-error').textContent = 'Il faut au moins 2 civils. Réduisez les Undercover / Mr White.';
       return;
     }
     startGame(names);
@@ -709,11 +721,12 @@
     const pool = [];
     state.categories.forEach(cat=> WORDS[cat].forEach(pair=> pool.push(pair)));
     const [civilWord, ucWord] = pool[Math.floor(Math.random()*pool.length)];
+    state.civilWord = civilWord;
 
     // build role list
     let roles = [];
     for(let i=0;i<state.ucCount;i++) roles.push('undercover');
-    if(state.blanc) roles.push('blanc');
+    if(state.white) roles.push('white');
     const civilCount = state.playerCount - roles.length;
     for(let i=0;i<civilCount;i++) roles.push('civil');
     // shuffle
@@ -743,14 +756,14 @@
     const p = state.players[state.revealIndex];
     $('reveal-progress').textContent = `Joueur ${state.revealIndex+1} / ${state.players.length}`;
     $('reveal-name').textContent = p.name;
-    if(p.role === 'blanc'){
-      $('reveal-roletag').textContent = 'Tu es MR BLANC';
+    if(p.role === 'white'){
+      $('reveal-roletag').textContent = 'Tu es MR WHITE';
       $('reveal-word').textContent = 'Aucun mot — bluffe !';
-      $('reveal-word').classList.add('blanc');
+      $('reveal-word').classList.add('white');
     } else {
       $('reveal-roletag').textContent = 'Ton mot';
       $('reveal-word').textContent = p.word;
-      $('reveal-word').classList.remove('blanc');
+      $('reveal-word').classList.remove('white');
     }
   }
 
@@ -765,7 +778,7 @@
   $('btn-hide').onclick = ()=>{
     // Blank the word immediately so nothing leaks while the card rotates back to front.
     $('reveal-word').textContent = '';
-    $('reveal-word').classList.remove('blanc');
+    $('reveal-word').classList.remove('white');
     $('btn-hide').style.display = 'none';
     card.classList.remove('flipped');
 
@@ -824,7 +837,7 @@
   };
 
   function roleLabel(role){
-    return role==='civil' ? 'Civil' : role==='undercover' ? 'Undercover' : 'Mr Blanc';
+    return role==='civil' ? 'Civil' : role==='undercover' ? 'Undercover' : 'Mr White';
   }
 
   function renderLiveGrid(){
@@ -849,18 +862,26 @@
     $('modal-name').textContent = p.name;
     $('modal-role').textContent = `Rôle réel : ${roleLabel(p.role)}`;
     $('modal-word').textContent = '';
-    $('modal-blanc-guess').style.display = p.role==='blanc' ? 'block' : 'none';
-    $('modal-continue').style.display = p.role==='blanc' ? 'none' : 'block';
+    $('modal-white-guess').style.display = p.role==='white' ? 'block' : 'none';
+    $('modal-continue').style.display = p.role==='white' ? 'none' : 'block';
+    $('white-guess-input').value = '';
+    $('white-guess-result').textContent = '';
+    $('white-guess-submit').style.display = 'block';
     $('elim-modal').style.display = 'flex';
+    if(p.role==='white') setTimeout(()=> $('white-guess-input').focus(), 300);
   }
 
-  function closeElimAndCheck(blancWon){
+  function normalizeGuess(str){
+    return str.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+  }
+
+  function closeElimAndCheck(whiteWon){
     const p = state.players[state.pendingElim];
     p.alive = false;
     $('elim-modal').style.display = 'none';
 
-    if(blancWon){
-      endGame('blanc', p);
+    if(whiteWon){
+      endGame('white', p);
       return;
     }
     const {civils, bad} = aliveCounts();
@@ -877,11 +898,21 @@
   }
 
   $('modal-continue').onclick = ()=> closeElimAndCheck(false);
-  $('blanc-correct').onclick = ()=> closeElimAndCheck(true);
-  $('blanc-wrong').onclick = ()=> closeElimAndCheck(false);
+
+  $('white-guess-submit').onclick = ()=>{
+    const guess = $('white-guess-input').value;
+    const correct = guess.trim().length>0 && normalizeGuess(guess) === normalizeGuess(state.civilWord);
+    $('white-guess-result').textContent = correct
+      ? `Correct, c'était "${state.civilWord}" — Mr White gagne !`
+      : `Raté, le mot était "${state.civilWord}".`;
+    $('white-guess-result').style.color = correct ? 'var(--teal)' : 'var(--crimson-bright)';
+    $('white-guess-submit').style.display = 'none';
+    $('modal-continue').style.display = 'block';
+    $('modal-continue').onclick = ()=> closeElimAndCheck(correct);
+  };
 
   // ---------- END SCREEN ----------
-  function endGame(winner, blancPlayer){
+  function endGame(winner, whitePlayer){
     showScreen('screen-end');
     const ec = $('endcard');
     ec.className = 'panel endcard ' + winner;
@@ -892,8 +923,8 @@
       $('end-title').textContent = 'LES UNDERCOVER GAGNENT';
       $('end-sub').textContent = 'Les infiltrés ont pris le dessus.';
     } else {
-      $('end-title').textContent = 'MR BLANC GAGNE';
-      $('end-sub').textContent = `${blancPlayer.name} a deviné le mot des civils !`;
+      $('end-title').textContent = 'MR WHITE GAGNE';
+      $('end-sub').textContent = `${whitePlayer.name} a deviné le mot des civils !`;
     }
     const recap = state.players.map(p=> `${p.name} — ${roleLabel(p.role)}${p.word ? ' ('+p.word+')' : ''}`).join('<br>');
     $('end-recap').innerHTML = recap;

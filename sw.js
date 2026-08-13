@@ -1,6 +1,6 @@
 const CACHE_NAME = 'undercover-dossier-v1';
 const ASSETS = [
-  './undercover.html',
+  './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
