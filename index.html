@@ -517,13 +517,13 @@
 
   <!-- SCREEN 3 : GAME / ELIMINATION -->
   <section class="screen" id="screen-game">
-    <div class="panel" data-tab="Tour de parole">
-      <div class="hint" style="margin-bottom:10px;">Chacun décrit son mot à tour de rôle, sans jamais le dire.</div>
+    <div class="panel" data-tab="Premier à parler">
+      <div class="hint" style="margin-bottom:10px;">Ce joueur ouvre le tour de table. Si il est éliminé, la main passe automatiquement au suivant.</div>
       <div class="turn-display">
         <div class="turn-label">C'est à</div>
         <div class="turn-name" id="turn-name">—</div>
+        <div class="turn-label" style="margin-top:4px;">de commencer</div>
       </div>
-      <button class="btn btn-primary" id="btn-next-turn" style="width:100%; margin-top:12px;">Joueur suivant →</button>
     </div>
     <div class="panel" data-tab="En jeu">
       <div class="hint" style="margin-bottom:10px;">Une fois le tour de table terminé, votez à voix haute puis touchez le nom du joueur éliminé pour révéler son rôle.</div>
@@ -630,7 +630,9 @@
     pendingElim: null,
     turnPointer: 0,
     civilWord: '',
-    recentPairs: []
+    recentPairs: [],
+    starterIndex: 0,
+    lastStarterName: null
   };
 
   const $ = (id) => document.getElementById(id);
@@ -816,7 +818,19 @@
 
   function startLiveGame(){
     showScreen('screen-game');
-    state.turnPointer = Math.floor(Math.random()*state.players.length);
+    // Mr White never opens the round (too risky with no word), and avoid picking
+    // the same starter twice in a row when other options exist.
+    let candidates = state.players
+      .map((p,i)=>({p,i}))
+      .filter(({p})=> p.role !== 'white');
+    if(candidates.length === 0) candidates = state.players.map((p,i)=>({p,i}));
+    if(candidates.length > 1 && state.lastStarterName){
+      const filtered = candidates.filter(({p})=> p.name !== state.lastStarterName);
+      if(filtered.length > 0) candidates = filtered;
+    }
+    const choice = candidates[Math.floor(Math.random()*candidates.length)];
+    state.starterIndex = choice.i;
+    state.lastStarterName = state.players[state.starterIndex].name;
     renderTurn();
     renderLiveGrid();
   }
@@ -831,17 +845,12 @@
   }
 
   function renderTurn(){
-    if(!state.players[state.turnPointer] || !state.players[state.turnPointer].alive){
-      state.turnPointer = nextAliveFrom(state.turnPointer);
+    if(!state.players[state.starterIndex] || !state.players[state.starterIndex].alive){
+      state.starterIndex = nextAliveFrom(state.starterIndex);
     }
-    const p = state.players[state.turnPointer];
+    const p = state.players[state.starterIndex];
     $('turn-name').textContent = p ? p.name : '—';
   }
-
-  $('btn-next-turn').onclick = ()=>{
-    state.turnPointer = nextAliveFrom(state.turnPointer);
-    renderTurn();
-  };
 
   function roleLabel(role){
     return role==='civil' ? 'Civil' : role==='undercover' ? 'Undercover' : 'Mr White';
