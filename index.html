@@ -565,53 +565,20 @@
 <script>
 (function(){
   // ---------- WORD BANK ----------
-  const WORDS = {
-    "Nourriture": [
-      ["Pizza","Quiche"],["Frites","Chips"],["Chocolat","Caramel"],["Fromage","Yaourt"],
-      ["Pomme","Poire"],["Banane","Mangue"],["Croissant","Pain au chocolat"],["Sushi","Sashimi"],
-      ["Burger","Hot-dog"],["Pâtes","Riz"],["Salade","Soupe"],["Gâteau","Tarte"],
-      ["Glace","Sorbet"],["Miel","Confiture"],["Crêpe","Gaufre"]
-    ],
-    "Animaux": [
-      ["Chat","Tigre"],["Chien","Loup"],["Cheval","Âne"],["Lion","Panthère"],
-      ["Éléphant","Rhinocéros"],["Dauphin","Requin"],["Aigle","Faucon"],["Serpent","Lézard"],
-      ["Abeille","Guêpe"],["Tortue","Crabe"],["Ours","Panda"],["Singe","Gorille"],
-      ["Poule","Coq"],["Mouton","Chèvre"],["Papillon","Libellule"]
-    ],
-    "Métiers": [
-      ["Médecin","Infirmier"],["Professeur","Instituteur"],["Pompier","Policier"],["Boulanger","Pâtissier"],
-      ["Avocat","Juge"],["Chanteur","Musicien"],["Acteur","Réalisateur"],["Pilote","Steward"],
-      ["Coiffeur","Esthéticienne"],["Plombier","Électricien"],["Journaliste","Écrivain"],["Architecte","Ingénieur"],
-      ["Fermier","Jardinier"],["Chef cuisinier","Serveur"],["Photographe","Peintre"]
-    ],
-    "Lieux": [
-      ["Plage","Piscine"],["Montagne","Colline"],["Forêt","Jungle"],["Désert","Savane"],
-      ["Ville","Village"],["École","Université"],["Hôpital","Clinique"],["Aéroport","Gare"],
-      ["Musée","Bibliothèque"],["Restaurant","Café"],["Cinéma","Théâtre"],["Église","Château"],
-      ["Marché","Supermarché"],["Parc","Jardin"],["Île","Péninsule"]
-    ],
-    "Objets": [
-      ["Téléphone","Tablette"],["Ordinateur","Console"],["Voiture","Moto"],["Vélo","Trottinette"],
-      ["Montre","Réveil"],["Lunettes","Jumelles"],["Parapluie","Casquette"],["Sac","Valise"],
-      ["Stylo","Crayon"],["Livre","Journal"],["Guitare","Violon"],["Ballon","Frisbee"],
-      ["Couteau","Ciseaux"],["Table","Bureau"],["Lit","Canapé"]
-    ],
-    "Boissons": [
-      ["Café","Thé"],["Jus d'orange","Smoothie"],["Vin","Champagne"],["Bière","Cidre"],
-      ["Eau","Limonade"],["Cocktail","Mocktail"],["Lait","Yaourt à boire"],["Chocolat chaud","Café au lait"]
-    ],
-    "Transports": [
-      ["Train","Tramway"],["Avion","Hélicoptère"],["Bateau","Voilier"],["Bus","Métro"],
-      ["Voiture","Camion"],["Taxi","VTC"],["Fusée","Satellite"]
-    ],
-    "Nature": [
-      ["Soleil","Lune"],["Pluie","Neige"],["Océan","Lac"],["Rivière","Ruisseau"],
-      ["Volcan","Montagne"],["Forêt","Prairie"],["Nuage","Brouillard"],["Tempête","Orage"]
-    ],
-    "Sport": [
-      ["Football","Rugby"],["Basketball","Handball"],["Tennis","Badminton"],["Natation","Plongée"],
-      ["Ski","Snowboard"],["Boxe","Judo"],["Cyclisme","Course à pied"],["Golf","Bowling"]
-    ]
+    const WORDS = {
+    "Nourriture": [["Pizza","Quiche"],["Frites","Chips"],["Chocolat","Caramel"],["Fromage","Yaourt"],["Pomme","Poire"],["Banane","Mangue"],["Croissant","Pain au chocolat"],["Sushi","Sashimi"],["Burger","Hot-dog"],["Pâtes","Riz"],["Salade","Soupe"],["Gâteau","Tarte"],["Glace","Sorbet"],["Miel","Confiture"],["Crêpe","Gaufre"],["Baguette","Pain de mie"],["Beurre","Margarine"],["Jambon","Bacon"],["Poulet","Dinde"],["Boeuf","Veau"],["Porc","Sanglier"],["Saumon","Truite"],["Thon","Maquereau"],["Crevette","Langoustine"],["Moule","Huître"],["Fraise","Framboise"],["Cerise","Groseille"],["Citron","Citron vert"],["Orange","Clémentine"],["Raisin","Pruneau"],["Kiwi","Litchi"],["Ananas","Papaye"],["Noix","Noisette"],["Amande","Cacahuète"],["Biscuit","Gâteau sec"],["Bonbon","Chewing-gum"],["Nougat","Praline"],["Yaourt","Fromage blanc"],["Omelette","Œuf au plat"],["Riz","Semoule"],["Nouilles","Spaghetti"],["Ravioli","Tortellini"],["Lasagne","Cannelloni"],["Tacos","Burrito"],["Falafel","Houmous"],["Curry","Chili con carne"],["Potage","Velouté"],["Cornichon","Olive"],["Ketchup","Sauce tomate"],["Mayonnaise","Aïoli"],["Moutarde","Wasabi"],["Camembert","Brie"],["Mozzarella","Burrata"],["Gruyère","Comté"],["Poivron","Piment"]],
+    "Animaux": [["Chat","Tigre"],["Chien","Loup"],["Cheval","Âne"],["Lion","Panthère"],["Éléphant","Rhinocéros"],["Dauphin","Requin"],["Aigle","Faucon"],["Serpent","Lézard"],["Abeille","Guêpe"],["Tortue","Crabe"],["Ours","Panda"],["Singe","Gorille"],["Poule","Coq"],["Mouton","Chèvre"],["Papillon","Libellule"],["Renard","Chacal"],["Hyène","Loup"],["Lynx","Puma"],["Guépard","Léopard"],["Zèbre","Cheval"],["Girafe","Okapi"],["Hippopotame","Rhinocéros"],["Chameau","Dromadaire"],["Bison","Buffle"],["Cerf","Chevreuil"],["Sanglier","Cochon"],["Furet","Belette"],["Castor","Loutre"],["Hérisson","Taupe"],["Écureuil","Marmotte"],["Chauve-souris","Hirondelle"],["Corbeau","Corneille"],["Pigeon","Tourterelle"],["Perroquet","Perruche"],["Hibou","Chouette"],["Cygne","Oie"],["Canard","Cane"],["Flamant rose","Héron"],["Pélican","Cormoran"],["Grenouille","Crapaud"],["Salamandre","Triton"],["Iguane","Caméléon"],["Cobra","Vipère"],["Anaconda","Python"],["Méduse","Anémone de mer"],["Pieuvre","Calamar"],["Homard","Écrevisse"],["Étoile de mer","Oursin"],["Fourmi","Termite"],["Coccinelle","Scarabée"],["Moustique","Mouche"],["Sauterelle","Criquet"],["Mite","Papillon de nuit"],["Scorpion","Araignée"],["Escargot","Limace"]],
+    "Métiers": [["Médecin","Infirmier"],["Professeur","Instituteur"],["Pompier","Policier"],["Boulanger","Pâtissier"],["Avocat","Juge"],["Chanteur","Musicien"],["Acteur","Réalisateur"],["Pilote","Steward"],["Coiffeur","Esthéticienne"],["Plombier","Électricien"],["Journaliste","Écrivain"],["Architecte","Ingénieur"],["Fermier","Jardinier"],["Chef cuisinier","Serveur"],["Photographe","Peintre"],["Infirmier","Aide-soignant"],["Chirurgien","Anesthésiste"],["Dentiste","Orthodontiste"],["Kinésithérapeute","Ostéopathe"],["Psychologue","Psychiatre"],["Vétérinaire","Éleveur"],["Notaire","Avocat"],["Huissier","Notaire"],["Comptable","Auditeur"],["Banquier","Assureur"],["Trader","Analyste financier"],["Commercial","Vendeur"],["Chef de projet","Manager"],["Consultant","Analyste"],["Développeur","Ingénieur informatique"],["Designer","Graphiste"],["Traducteur","Interprète"],["Bibliothécaire","Documentaliste"],["Instituteur","Éducateur"],["Surveillant","Directeur d'école"],["Mécanicien","Carrossier"],["Menuisier","Ébéniste"],["Maçon","Carreleur"],["Peintre en bâtiment","Décorateur"],["Vitrier","Serrurier"],["Chauffagiste","Plombier"],["Agriculteur","Éleveur"],["Pêcheur","Marin"],["Douanier","Gendarme"],["Militaire","Soldat"],["Détective","Enquêteur"],["Gardien","Vigile"],["Barman","Sommelier"],["Pâtissier","Chocolatier"],["Boucher","Charcutier"],["Poissonnier","Écailler"],["Fleuriste","Pépiniériste"],["Couturier","Tailleur"],["Bijoutier","Horloger"],["Antiquaire","Brocanteur"]],
+    "Lieux": [["Plage","Piscine"],["Montagne","Colline"],["Forêt","Jungle"],["Désert","Savane"],["Ville","Village"],["École","Université"],["Hôpital","Clinique"],["Aéroport","Gare"],["Musée","Bibliothèque"],["Restaurant","Café"],["Cinéma","Théâtre"],["Église","Château"],["Marché","Supermarché"],["Parc","Jardin"],["Île","Péninsule"],["Auberge","Hôtel"],["Camping","Gîte"],["Chalet","Cabane"],["Manoir","Château"],["Cathédrale","Basilique"],["Chapelle","Église"],["Monastère","Couvent"],["Cimetière","Mausolée"],["Stade","Arène"],["Gymnase","Salle de sport"],["Patinoire","Bowling"],["Casino","Salle de jeux"],["Discothèque","Bar"],["Pub","Brasserie"],["Boulangerie","Pâtisserie"],["Pharmacie","Parapharmacie"],["Laboratoire","Clinique"],["Caserne","Commissariat"],["Prison","Centre de détention"],["Tribunal","Palais de justice"],["Mairie","Préfecture"],["Ambassade","Consulat"],["Usine","Entrepôt"],["Atelier","Garage"],["Ferme","Exploitation agricole"],["Serre","Jardin botanique"],["Zoo","Réserve naturelle"],["Aquarium","Delphinarium"],["Grotte","Caverne"],["Falaise","Précipice"],["Vallée","Gorge"],["Plaine","Plateau"],["Archipel","Atoll"],["Golfe","Baie"],["Presqu'île","Cap"],["Oasis","Palmeraie"],["Métro","RER"],["Gare routière","Terminal de bus"],["Port","Marina"],["Quai","Embarcadère"]],
+    "Objets": [["Téléphone","Tablette"],["Ordinateur","Console"],["Voiture","Moto"],["Vélo","Trottinette"],["Montre","Réveil"],["Lunettes","Jumelles"],["Parapluie","Casquette"],["Sac","Valise"],["Stylo","Crayon"],["Livre","Journal"],["Guitare","Violon"],["Ballon","Frisbee"],["Couteau","Ciseaux"],["Table","Bureau"],["Lit","Canapé"],["Casque audio","Écouteurs"],["Enceinte","Haut-parleur"],["Chargeur","Adaptateur"],["Batterie externe","Powerbank"],["Clé USB","Disque dur"],["Imprimante","Scanner"],["Manette","Joystick"],["Souris","Trackpad"],["Clavier","Pavé numérique"],["Micro-ondes","Four"],["Grille-pain","Sandwicheuse"],["Blender","Robot ménager"],["Aspirateur","Balai"],["Fer à repasser","Défroisseur"],["Machine à laver","Sèche-linge"],["Réfrigérateur","Congélateur"],["Bougie","Lampe"],["Lanterne","Torche"],["Miroir","Vitre"],["Tapis","Moquette"],["Rideau","Store"],["Coussin","Oreiller"],["Couverture","Plaid"],["Matelas","Sommier"],["Armoire","Commode"],["Étagère","Bibliothèque"],["Tabouret","Chaise"],["Fauteuil","Canapé"],["Portefeuille","Porte-monnaie"],["Sac à dos","Cartable"],["Ceinture","Bretelles"],["Écharpe","Foulard"],["Gants","Moufles"],["Bonnet","Chapeau"],["Bottes","Baskets"],["Sandales","Tongs"],["Boussole","GPS"],["Jumelles","Longue-vue"],["Loupe","Microscope"],["Balance","Pèse-personne"]],
+    "Boissons": [["Café","Thé"],["Jus d'orange","Smoothie"],["Vin","Champagne"],["Bière","Cidre"],["Eau","Limonade"],["Cocktail","Mocktail"],["Lait","Yaourt à boire"],["Chocolat chaud","Café au lait"],["Whisky","Rhum"],["Vodka","Gin"],["Tequila","Mezcal"],["Rosé","Blanc"],["Mousseux","Champagne"],["Bière blonde","Bière brune"],["Panaché","Bière"],["Sirop","Soda"],["Soda","Limonade"],["Milkshake","Smoothie"],["Infusion","Tisane"],["Thé vert","Thé noir"],["Espresso","Café allongé"],["Cappuccino","Latte"],["Jus de pomme","Jus de raisin"],["Nectar","Jus de fruits"],["Eau gazeuse","Eau plate"],["Kéfir","Kombucha"],["Sangria","Punch"],["Mojito","Daïquiri"]],
+    "Transports": [["Train","Tramway"],["Avion","Hélicoptère"],["Bateau","Voilier"],["Bus","Métro"],["Voiture","Camion"],["Taxi","VTC"],["Fusée","Satellite"],["Trottinette","Skateboard"],["Rollers","Patins"],["Tramway","Métro"],["Funiculaire","Téléphérique"],["Camion","Fourgon"],["Camping-car","Caravane"],["Quad","Buggy"],["Scooter","Moto"],["Voilier","Catamaran"],["Kayak","Canoë"],["Jet-ski","Hors-bord"],["Sous-marin","Bathyscaphe"],["Planeur","Deltaplane"],["Montgolfière","Zeppelin"],["Traîneau","Motoneige"],["Charrette","Calèche"]],
+    "Nature": [["Soleil","Lune"],["Pluie","Neige"],["Océan","Lac"],["Rivière","Ruisseau"],["Volcan","Montagne"],["Forêt","Prairie"],["Nuage","Brouillard"],["Tempête","Orage"],["Vent","Bourrasque"],["Brise","Tempête"],["Cyclone","Ouragan"],["Tornade","Typhon"],["Glace","Verglas"],["Givre","Gel"],["Rosée","Brume"],["Arc-en-ciel","Halo"],["Éclair","Foudre"],["Tonnerre","Grondement"],["Aurore","Crépuscule"],["Étoile","Comète"],["Météorite","Astéroïde"],["Marée","Vague"],["Récif","Corail"],["Sable","Gravier"],["Falaise","Dune"],["Geyser","Source chaude"],["Glacier","Iceberg"],["Marais","Marécage"]],
+    "Sport": [["Football","Rugby"],["Basketball","Handball"],["Tennis","Badminton"],["Natation","Plongée"],["Ski","Snowboard"],["Boxe","Judo"],["Cyclisme","Course à pied"],["Golf","Bowling"],["Volleyball","Beach-volley"],["Water-polo","Natation synchronisée"],["Escrime","Kendo"],["Karaté","Taekwondo"],["Lutte","Sambo"],["Aviron","Kayak"],["Escalade","Alpinisme"],["Randonnée","Trekking"],["Patinage artistique","Patinage de vitesse"],["Hockey sur glace","Hockey sur gazon"],["Curling","Pétanque"],["Fléchettes","Billard"],["Squash","Padel"],["Équitation","Polo"],["Triathlon","Décathlon"],["Marathon","Semi-marathon"],["Parachutisme","Base jump"],["Surf","Bodyboard"],["Ski nautique","Wakeboard"],["Plongeon","Plongée"]],
+    "Corps & santé": [["Rhume","Grippe"],["Migraine","Mal de tête"],["Fièvre","Frisson"],["Fracture","Entorse"],["Pansement","Bandage"],["Sirop","Comprimé"],["Vaccin","Piqûre"],["Radiographie","Échographie"],["Cicatrice","Bleu"],["Allergie","Intolérance"],["Bâillement","Éternuement"],["Toux","Hoquet"]],
+    "École & études": [["Cahier","Classeur"],["Trousse","Plumier"],["Tableau noir","Tableau blanc"],["Craie","Feutre"],["Examen","Contrôle"],["Diplôme","Certificat"],["Récréation","Pause"],["Cantine","Réfectoire"],["Interrogation","Devoir"],["Bulletin","Relevé de notes"],["Redoublement","Rattrapage"],["Internat","Externat"]],
+    "Vêtements": [["Pull","Gilet"],["Veste","Blouson"],["Manteau","Doudoune"],["Chemise","Chemisier"],["Robe","Jupe"],["Pantalon","Jean"],["Short","Bermuda"],["Costume","Smoking"],["Maillot de bain","Combinaison"],["Pyjama","Chemise de nuit"],["Cravate","Nœud papillon"],["Chaussettes","Collants"]],
+    "Musique & spectacle": [["Concert","Festival"],["Opéra","Comédie musicale"],["Orchestre","Fanfare"],["Piano","Clavecin"],["Batterie","Percussions"],["Flûte","Clarinette"],["Trompette","Trombone"],["Harpe","Guitare"],["Cirque","Spectacle de rue"],["Marionnette","Théâtre d'ombres"],["Karaoké","Playback"],["DJ","Musicien"]]
   };
 
   // ---------- STATE ----------
@@ -626,10 +593,26 @@
     pendingElim: null,
     turnPointer: 0,
     civilWord: '',
-    recentPairs: [],
+    recentPairs: loadRecentPairs(),
     starterIndex: 0,
     lastStarterName: null
   };
+
+  function loadRecentPairs(){
+    try {
+      const raw = localStorage.getItem('undercover_recent_pairs');
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch(e){
+      return [];
+    }
+  }
+
+  function saveRecentPairs(){
+    try {
+      localStorage.setItem('undercover_recent_pairs', JSON.stringify(state.recentPairs));
+    } catch(e){ /* storage unavailable, ignore */ }
+  }
 
   const $ = (id) => document.getElementById(id);
   function showScreen(id){
@@ -725,8 +708,9 @@
     const [civilWord, ucWord] = choices[Math.floor(Math.random()*choices.length)];
     state.civilWord = civilWord;
     state.recentPairs.push([civilWord, ucWord]);
-    const historyLimit = Math.max(1, Math.min(8, pool.length - 1));
+    const historyLimit = Math.max(1, pool.length - 1);
     if(state.recentPairs.length > historyLimit) state.recentPairs.shift();
+    saveRecentPairs();
 
     // build role list
     let roles = [];
